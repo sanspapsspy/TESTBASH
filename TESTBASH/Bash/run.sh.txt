@@ -1,0 +1,144 @@
+#!/bin/bash
+# Скрипт запуска TESTBASH
+
+VERSION="1.0.0"
+APP_NAME="TESTBASH"
+APP_PATH="./bin/$APP_NAME.exe"
+
+# Цвета для вывода
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+show_help() {
+    echo -e "${BLUE}Использование: $0 [опции]${NC}"
+    echo ""
+    echo -e "${YELLOW}Основные опции:${NC}"
+    echo "  -h, --help     Показать эту справку"
+    echo "  -v, --version  Показать версию"
+    echo "  -m, --menu     Запустить графический интерфейс"
+    echo "  -f FILE        Обработать файл"
+    echo "  -o FILE        Сохранить результат в файл"
+    echo ""
+    echo -e "${YELLOW}Дополнительные опции:${NC}"
+    echo "  -c FILE        Использовать конфигурационный файл"
+    echo "  -d             Подробное логирование"
+    echo "  -i             Информация о системе"
+    echo "  -s             Тихий режим"
+    echo "  -t             Сохранять временные файлы"
+    echo ""
+    echo -e "${YELLOW}Примеры:${NC}"
+    echo "  $0 -m                  # Графический режим"
+    echo "  $0 -f input.txt        # Обработать файл"
+    echo "  $0 -f in.txt -o out.txt # Обработать и сохранить"
+    echo "  $0 --help              # Справка"
+}
+
+show_version() {
+    echo -e "${GREEN}$APP_NAME версия $VERSION${NC}"
+    echo "Автор: [Ваше ФИО]"
+    echo "Группа: [Ваша группа]"
+}
+
+# Проверка наличия Mono/.NET
+check_dependencies() {
+    if command -v mono &> /dev/null; then
+        echo -e "${GREEN}✓ Mono установлен${NC}"
+        RUNTIME="mono"
+    elif command -v dotnet &> /dev/null; then
+        echo -e "${GREEN}✓ .NET установлен${NC}"
+        RUNTIME="dotnet"
+    else
+        echo -e "${RED}✗ Ошибка: Mono или .NET не установлены${NC}"
+        echo "Установите Mono:"
+        echo "  Ubuntu/Debian: sudo apt install mono-devel"
+        echo "  Fedora: sudo dnf install mono-devel"
+        echo "  Windows: установите .NET Framework"
+        exit 1
+    fi
+}
+
+# Проверка наличия программы
+check_program() {
+    if [ ! -f "$APP_PATH" ]; then
+        echo -e "${YELLOW}⚠ Программа не скомпилирована${NC}"
+        echo "Выполните компиляцию:"
+        echo "  make compile"
+        read -p "Скомпилировать сейчас? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            make compile
+            if [ $? -ne 0 ]; then
+                echo -e "${RED}✗ Ошибка компиляции${NC}"
+                exit 1
+            fi
+        else
+            exit 1
+        fi
+    fi
+}
+
+# Создание временных директорий
+create_dirs() {
+    mkdir -p logs
+    mkdir -p tmp
+    echo -e "${GREEN}✓ Временные директории созданы${NC}"
+}
+
+# Основная функция запуска
+main() {
+    echo -e "${BLUE}=== $APP_NAME ===${NC}"
+    
+    check_dependencies
+    check_program
+    create_dirs
+    
+    if [ $# -eq 0 ]; then
+        # Запуск без аргументов
+        echo -e "${GREEN}Запуск программы...${NC}"
+        echo "======================"
+        $RUNTIME "$APP_PATH"
+    else
+        # Запуск с аргументами
+        case "$1" in
+            -h|--help)
+                show_help
+                ;;
+            -v|--version)
+                show_version
+                ;;
+            -m|--menu)
+                echo -e "${GREEN}Запуск графического интерфейса...${NC}"
+                $RUNTIME "$APP_PATH" -m
+                ;;
+            -f)
+                if [ -n "$2" ] && [ -f "$2" ]; then
+                    echo -e "${GREEN}Обработка файла: $2${NC}"
+                    if [ -n "$3" ] && [ "$3" == "-o" ] && [ -n "$4" ]; then
+                        $RUNTIME "$APP_PATH" -f "$2" -o "$4"
+                    else
+                        $RUNTIME "$APP_PATH" -f "$2"
+                    fi
+                else
+                    echo -e "${RED}Ошибка: файл не указан или не существует${NC}"
+                    show_help
+                fi
+                ;;
+            -i)
+                $RUNTIME "$APP_PATH" -i
+                ;;
+            *)
+                # Передаем все аргументы в программу
+                echo -e "${GREEN}Запуск с аргументами: $@${NC}"
+                $RUNTIME "$APP_PATH" "$@"
+                ;;
+        esac
+    fi
+    
+    echo -e "${BLUE}======================${NC}"
+}
+
+# Запуск основной функции
+main "$@"
