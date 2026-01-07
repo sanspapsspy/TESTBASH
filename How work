@@ -1,0 +1,36 @@
+# Откройте Command Prompt (cmd)
+cd Путь к проекту
+TESTBASH.exe
+TESTBASH.exe -h
+TESTBASH.exe -m
+
+cd Путь к проекту
+.\TESTBASH.exe
+.\TESTBASH.exe -f input.txt
+
+запуск через bash
+1. Скачайте с: гитхаба
+2. Установите с настройками по умолчанию
+3. Добавьте в PATH при установке
+
+GitBASH
+cd Путь к проекту
+
+# Дайте права на выполнение
+chmod +x run.sh
+
+# Запустите программу
+./run.sh           # Интерактивный режим
+./run.sh -h        # Справка
+./run.sh -m        # Графический интерфейс
+./run.sh -f test.txt -o result.txt  # Обработка файла
+
+
+ТЕСТ
+./run.sh -h                     # Справка
+./run.sh -i                     # Информация
+./run.sh -f test.txt            # Обработка файла
+./run.sh -f test.txt -o out.txt # Сохранение результата
+
+Консольный режим
+./run.sh
