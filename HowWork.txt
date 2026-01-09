@@ -1,5 +1,0 @@
-Через CMD
-cd C:\Users\User\source\repos\TESTBASH\TESTBASH\bin\Debug\net10.0-windows.TESTBASH
-
-Git BASH
-cmd //c "C:\Users\User\source\repos\TESTBASH\TESTBASH\bin\Debug\net10.0-windows\TESTBASH.exe"
